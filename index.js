@@ -30,8 +30,9 @@ app.post('/ask', async (req, res) => {
       model: 'gemini-1.5-flash',
       contents: prompt,
     });
+    const answer = response.text?.() || "No response";
 
-    res.json({ answer: response.text });
+    res.json({ answer });
   } catch (err) {
     console.error('AI Error:', err);
     res.status(500).json({ error: 'AI request failed' });
@@ -41,6 +42,13 @@ app.post('/ask', async (req, res) => {
 
 app.get('/', (req, res) => {
   res.send('TalkNova Backend Running with Gemini 1.5-flash!');
+});
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`TalkNova Backend Running with Gemini 1.5-flash!`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 export default app;
