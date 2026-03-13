@@ -27,7 +27,7 @@ app.post('/ask', async (req, res) => {
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
     });
 
@@ -40,7 +40,7 @@ app.post('/ask', async (req, res) => {
 
 
 app.get('/', (req, res) => {
-  res.send('TalkNova Backend Running with Gemini 2.0 Flash!');
+  res.send('TalkNova Backend Running with Gemini 1.5-flash!');
 });
 
 export default app;
