@@ -1,37 +1,37 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// routes/chat.js
+import express from 'express';
+import Chat from '../models/Chat.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
-export default async function handler(req, res) {
+const router = express.Router();
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
+// GET all chats for logged-in user
+router.get('/', authMiddleware, async (req, res) => {
   try {
-
-    const { prompt } = req.body;
-
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
-    }
-
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash"
-    });
-
-    const result = await model.generateContent(prompt);
-
-    const text = result.response.text();
-
-    res.status(200).json({ answer: text });
-
-  } catch (error) {
-
-    console.error("Gemini Error:", error);
-
-    res.status(500).json({
-      error: "AI request failed"
-    });
+    const chats = await Chat.find({ user: req.userId }).sort({ createdAt: -1 });
+    res.json(chats);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-}
+});
+
+// POST a new prompt to Gemini AI
+router.post('/ask', authMiddleware, async (req, res) => {
+  const { prompt } = req.body;
+  try {
+    if (!prompt) return res.status(400).json({ error: "Prompt required" });
+
+    // Call Gemini AI (replace this with your actual Gemini call)
+    const answer = "AI reply placeholder"; 
+
+    // Save chat
+    const chat = new Chat({ user: req.userId, userMessage: prompt, aiReply: answer });
+    await chat.save();
+
+    res.json({ answer, chatId: chat._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;
