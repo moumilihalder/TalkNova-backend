@@ -21,7 +21,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-turbo", // use a valid model from your account
+      model: "gemini-1.5-chat", // use a valid model from your account
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
 
