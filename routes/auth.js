@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -48,4 +49,17 @@ router.post("/signup", async (req, res) => {
 
   res.json({ token, user });
 });
+
+// GET CURRENT USER
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password"); // remove password
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 export default router;
