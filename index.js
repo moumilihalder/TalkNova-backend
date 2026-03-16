@@ -13,26 +13,36 @@ dotenv.config();
 
 const app = express();
 
+// ---------------------------
 // Middleware
+// ---------------------------
 app.use(cors({ origin: "*", methods: ["GET", "POST", "OPTIONS"] }));
-app.use(express.json());
+app.use(express.json()); // must be before routes
 
+// ---------------------------
 // MongoDB Connection
+// ---------------------------
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
+// ---------------------------
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/chats", chatRoutes);
+// ---------------------------
+app.use("/api/auth", authRoutes);  // login & register
+app.use("/api/chats", chatRoutes); // chat CRUD
 
+// ---------------------------
 // Initialize Gemini AI
+// ---------------------------
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
+// ---------------------------
 // Ask endpoint (Gemini AI)
+// ---------------------------
 app.post("/api/ask", authMiddleware, async (req, res) => {
   const { prompt } = req.body;
 
@@ -47,8 +57,7 @@ app.post("/api/ask", authMiddleware, async (req, res) => {
     });
 
     const answer =
-      response?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No response from AI";
+      response?.candidates?.[0]?.content?.parts?.[0]?.text || "No response from AI";
 
     // Save chat
     const chat = new Chat({
@@ -69,11 +78,14 @@ app.post("/api/ask", authMiddleware, async (req, res) => {
   }
 });
 
+// ---------------------------
 // Health check
+// ---------------------------
 app.get("/", (req, res) => {
   res.send("TalkNova Backend Running with Gemini AI 🚀");
 });
 
-// IMPORTANT for Vercel
+// ---------------------------
+// Export app for Vercel
+// ---------------------------
 export default app;
-
